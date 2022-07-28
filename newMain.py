@@ -6,7 +6,7 @@ from tkinter import filedialog as fd
 
 class windowApp():
     def __init__(self) -> None:
-        self.__inputNames = ''
+        self.__inputNames = []
         self.__lastIndex = 0
 
         self.__filetypes = ((r'Plik pdf', r'*.pdf'),)
@@ -31,7 +31,7 @@ class windowApp():
         tk.Label(self.__window, text=r"Nazwa pliku wyjściowego:").place(x=5, y=10)
         # output name
         self.__outputName = tk.StringVar(self.__window)
-        self.__outputName.set(r'Plik wyjściowy.pdf')
+        self.__outputName.set(r'Plik wyjściowy')
         self.__outputName.trace(r'w', self.setOutputName)
         ttk.Entry(self.__window, textvariable=self.__outputName, width=24).place(x=149, y=5)
         
@@ -65,9 +65,11 @@ class windowApp():
         self.__inputNamesField.set(fileName)
 
     def setInputNames(self):
-        self.__inputNames = fd.askopenfilenames(
+        tmpOldNames = self.__inputNames
+        tmpNewNames = fd.askopenfilenames(
             title=r'Otwórz pliki pdf', initialdir=r'/', filetypes=self.__filetypes)
-        self.__inputNames = [x for x in self.__inputNames]
+        [tmpOldNames.append(x) for x in tmpNewNames]
+        self.__inputNames = tmpOldNames
         self.__setInputNamesField()
         self.__lastIndex = len(self.__inputNames) - 1
 
@@ -103,7 +105,7 @@ class windowApp():
         for pdf in self.__inputNames:
             merger.append(pdf)
 
-        merger.write(self.__outputName.get())
+        merger.write(f'{self.__outputName.get()}.pdf')
 
 
 windowApp()
