@@ -21,9 +21,7 @@ class windowApp():
 
         ttk.Button(self.__window, text=r"Otwórz pliki pdf",
                    command=self.setInputNames).place(x=5, y=40)
-        # ttk.Entry(self.__window, textvariable=self.__inputNamesField,
-        #  width=48, state='disabled').place(x=5, y=80)  # files names open
-        # [path.rsplit(r'/', 1) for path in self.__inputNamesField]
+
         self.__listbox = tk.Listbox(self.__window, height=13, width=42,
                                     listvariable=self.__inputNamesField)
         self.__listbox.place(x=5, y=75)
@@ -33,8 +31,8 @@ class windowApp():
         self.__outputName = tk.StringVar(self.__window)
         self.__outputName.set(r'Plik wyjściowy')
         self.__outputName.trace(r'w', self.setOutputName)
-        ttk.Entry(self.__window, textvariable=self.__outputName, width=24).place(x=149, y=5)
-        
+        ttk.Entry(self.__window, textvariable=self.__outputName,
+                  width=24).place(x=149, y=5)
 
         ttk.Button(self.__window, text=r"Zapisz",
                    command=self.__save).place(x=180, y=40)
@@ -44,17 +42,14 @@ class windowApp():
 
         ttk.Button(self.__window, text=r"ᐯ", width=2,
                    command=self.__down).place(x=270, y=255)  # down list element
-        # self.__window.style = ttk.Style()
-        # print(self.__window.style.theme_names())
-        # self.__window.style.theme_use(r'clam')
-        # self.__window.style.theme_use(r'azure dark')
+
         style = ttk.Style(self.__window)
         self.__window.tk.call('source', 'theme/azure dark.tcl')
         style.theme_use('azure')
         style.configure("Accentbutton", foreground='white')
         style.configure("Togglebutton", foreground='white')
         self.__window.mainloop()
-    
+
     def __switchElement(self, index, indexChange):
         self.__inputNames[index], self.__inputNames[indexChange] = self.__inputNames[indexChange], self.__inputNames[index]
         self.__listbox.select_clear(0, END)
@@ -102,8 +97,7 @@ class windowApp():
     def __save(self):
         merger = PdfFileMerger(strict=False)
 
-        for pdf in self.__inputNames:
-            merger.append(pdf)
+        [merger.append(pdf) for pdf in self.__inputNames]
 
         merger.write(f'{self.__outputName.get()}.pdf')
 
