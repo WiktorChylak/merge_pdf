@@ -2,6 +2,9 @@ from tkinter import END, ttk
 from PyPDF2 import PdfFileMerger
 import tkinter as tk
 from tkinter import filedialog as fd
+import sys #_MEIPASS
+from os import path
+
 
 
 class windowApp():
@@ -13,20 +16,22 @@ class windowApp():
         # okono aplikacji
         self.__window = tk.Tk()
         # wymiar okna
-        self.__window.geometry("315x293")
+        self.__window.geometry(r'315x293')
         # nazwa okna
-        self.__window.title(r"Scalanie plików PDF")
+        self.__window.title(r'Scalanie plików PDF')
+        # ikona
+        self.__window.iconbitmap(self.__resourcePath(r'icon.ico'))
 
         self.__inputNamesField = tk.StringVar(self.__window)
 
-        ttk.Button(self.__window, text=r"Otwórz pliki pdf",
+        ttk.Button(self.__window, text=r'Otwórz pliki pdf',
                    command=self.setInputNames).place(x=5, y=40)
 
         self.__listbox = tk.Listbox(self.__window, height=13, width=42,
                                     listvariable=self.__inputNamesField)
         self.__listbox.place(x=5, y=75)
 
-        tk.Label(self.__window, text=r"Nazwa pliku wyjściowego:").place(x=5, y=10)
+        tk.Label(self.__window, text=r'Nazwa pliku wyjściowego:').place(x=5, y=10)
         # output name
         self.__outputName = tk.StringVar(self.__window)
         self.__outputName.set(r'Plik wyjściowy')
@@ -34,20 +39,20 @@ class windowApp():
         ttk.Entry(self.__window, textvariable=self.__outputName,
                   width=24).place(x=149, y=5)
 
-        ttk.Button(self.__window, text=r"Zapisz",
+        ttk.Button(self.__window, text=r'Zapisz',
                    command=self.__save).place(x=180, y=40)
 
-        ttk.Button(self.__window, text=r"ᐱ", width=2,
+        ttk.Button(self.__window, text=r'ᐱ', width=2,
                    command=self.__up).place(x=270, y=75)  # up list element
 
-        ttk.Button(self.__window, text=r"ᐯ", width=2,
+        ttk.Button(self.__window, text=r'ᐯ', width=2,
                    command=self.__down).place(x=270, y=255)  # down list element
 
         style = ttk.Style(self.__window)
-        self.__window.tk.call('source', 'theme/azure dark.tcl')
-        style.theme_use('azure')
-        style.configure("Accentbutton", foreground='white')
-        style.configure("Togglebutton", foreground='white')
+        self.__window.tk.call(r'source', self.__resourcePath(r'theme/azure dark.tcl'))
+        style.theme_use(r'azure')
+        style.configure(r'Accentbutton', foreground=r'white')
+        style.configure(r'Togglebutton', foreground=r'white')
         self.__window.mainloop()
 
     def __switchElement(self, index, indexChange):
@@ -99,6 +104,17 @@ class windowApp():
         [merger.append(pdf) for pdf in self.__inputNames]
 
         merger.write(f'{self.__outputName.get()}.pdf')
+
+    @staticmethod
+    def __resourcePath(relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = path.abspath(r'.')
+
+        return path.join(base_path, relative_path)
 
 
 windowApp()
