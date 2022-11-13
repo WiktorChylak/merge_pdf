@@ -69,7 +69,6 @@ class windowApp():
         self.__lastIndex = len(self.__inputNames) - 1
 
     def setOutputName(self, *args):
-        print(self.__outputName.get())
         self.__outputName.set(self.__outputName.get())
 
     def __up(self):
