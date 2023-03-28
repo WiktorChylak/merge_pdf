@@ -1,10 +1,11 @@
 from tkinter import END, ttk
 from PyPDF2 import PdfMerger
 import tkinter as tk
-from tkinter import filedialog as fd
+from tkinter import filedialog as fd, messagebox
+from docx2pdf import convert
 import sys #_MEIPASS
-from os import path
-
+from os import path, remove
+from time import sleep
 
 
 class windowApp():
@@ -12,38 +13,31 @@ class windowApp():
         self.__inputNames = []
         self.__lastIndex = 0
 
-        self.__filetypes = ((r'Plik pdf', r'*.pdf'),)
+        self.__filetypes = ((r'Plik pdf', r'*.pdf'), (r'Plik docx', r'*.docx'), (r'Plik doc', r'*.doc'))
         # okono aplikacji
         self.__window = tk.Tk()
         # wymiar okna
         self.__window.geometry(r'315x293')
         # nazwa okna
-        self.__window.title(r'Scalanie plików PDF')
+        self.__window.title(r'Scalanie plików')
         # ikona
         self.__window.iconbitmap(self.__resourcePath(r'icon.ico'))
+        # self.__window.iconphoto(True, tk.PhotoImage(self.__resourcePath(r'icon.ico')))
 
         self.__inputNamesField = tk.StringVar(self.__window)
 
-        ttk.Button(self.__window, text=r'Otwórz pliki pdf',
-                   command=self.setInputNames).place(x=5, y=40)
+        ttk.Button(self.__window, text=r'Otwórz pliki',
+                   command=self.setInputNames).place(x=5, y=8)
 
-        self.__listbox = tk.Listbox(self.__window, height=13, width=42,
+        self.__listbox = tk.Listbox(self.__window, height=15, width=42,
                                     listvariable=self.__inputNamesField)
-        self.__listbox.place(x=5, y=75)
-
-        tk.Label(self.__window, text=r'Nazwa pliku wyjściowego:').place(x=5, y=10)
-        # output name
-        self.__outputName = tk.StringVar(self.__window)
-        self.__outputName.set(r'Plik wyjściowy')
-        self.__outputName.trace(r'w', self.setOutputName)
-        ttk.Entry(self.__window, textvariable=self.__outputName,
-                  width=24).place(x=149, y=5)
+        self.__listbox.place(x=5, y=45)
 
         ttk.Button(self.__window, text=r'Zapisz',
-                   command=self.__save).place(x=180, y=40)
+                   command=self.__save).place(x=180, y=8)
 
         ttk.Button(self.__window, text=r'ᐱ', width=2,
-                   command=self.__up).place(x=270, y=75)  # up list element
+                   command=self.__up).place(x=270, y=45)  # up list element
 
         ttk.Button(self.__window, text=r'ᐯ', width=2,
                    command=self.__down).place(x=270, y=255)  # down list element
@@ -65,16 +59,14 @@ class windowApp():
         self.__inputNamesField.set(fileName)
 
     def setInputNames(self):
+        documents_folder = path.join(path.expanduser(r"~"), r"Documents")
         tmpOldNames = self.__inputNames
         tmpNewNames = fd.askopenfilenames(
-            title=r'Otwórz pliki pdf', initialdir=r'/', filetypes=self.__filetypes)
+            title=r'Otwórz pliki pdf', initialdir=documents_folder, filetypes=self.__filetypes)
         [tmpOldNames.append(x) for x in tmpNewNames]
         self.__inputNames = tmpOldNames
         self.__setInputNamesField()
         self.__lastIndex = len(self.__inputNames) - 1
-
-    def setOutputName(self, *args):
-        self.__outputName.set(self.__outputName.get())
 
     def __up(self):
         selectedId = self.__listbox.curselection()
@@ -101,9 +93,22 @@ class windowApp():
     def __save(self):
         merger = PdfMerger(strict=False)
  
-        [merger.append(pdf) for pdf in self.__inputNames]
-
-        merger.write(f'{self.__outputName.get()}.pdf')
+        file_to_remove = []
+        folder_selected = tk.filedialog.asksaveasfilename(defaultextension=r"*.pdf", filetypes=((r'Plik pdf', r'*.pdf'),))
+        for file in self.__inputNames:
+            if file.endswith(r'.docx') or file.endswith(r'.doc'):
+                convert(file)
+                file = file.replace(path.splitext(file)[1], r'.pdf')
+                file_to_remove.append(file)
+            merger.append(file)
+        merger.write(folder_selected)
+        merger.close()
+        messagebox.showinfo("Info", "Scalono wszystkie pliki")
+        sleep(0.5)
+        try:
+            [remove(file) for file in file_to_remove]
+        except PermissionError:
+            messagebox.showinfo("Nie usunięto tymczasowych plików", '\n'.join(file_to_remove))
 
     @staticmethod
     def __resourcePath(relative_path):
