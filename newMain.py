@@ -1,5 +1,5 @@
 from tkinter import END, ttk
-from PyPDF2 import PdfFileMerger
+from PyPDF2 import PdfMerger
 import tkinter as tk
 from tkinter import filedialog as fd
 import sys #_MEIPASS
@@ -99,8 +99,8 @@ class windowApp():
                 self.__setInputNamesField()
 
     def __save(self):
-        merger = PdfFileMerger(strict=False)
-
+        merger = PdfMerger(strict=False)
+ 
         [merger.append(pdf) for pdf in self.__inputNames]
 
         merger.write(f'{self.__outputName.get()}.pdf')
